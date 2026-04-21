@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PAGES } from "./AppShell";
+import { PAGES } from "@/lib/routes";
 
 const NAV_LINKS = [
   { id: PAGES.INVENTORY, label: "My Products" },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useApp } from "@/lib/AppContext";
-import { PAGES } from "./layout/AppShell";
+import { PAGES } from "@/lib/routes";
 import { ButtonPrimary, ButtonSecondary } from "./ui/Button";
 
 const FEATURES = [

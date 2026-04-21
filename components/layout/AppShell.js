@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AppProvider } from "@/lib/AppContext";
+import { PAGES } from "@/lib/routes";
 import NavBar from "./NavBar";
 import HomePage from "@/components/HomePage";
 import InventoryPage from "@/components/inventory/InventoryPage";
@@ -10,16 +11,6 @@ import GeneratePage from "@/components/generator/GeneratePage";
 import FixPage from "@/components/fix/FixPage";
 import PairingsPage from "@/components/pairings/PairingsPage";
 import LearnPage from "@/components/learn/LearnPage";
-
-export const PAGES = {
-  HOME: "home",
-  INVENTORY: "inventory",
-  PROFILE: "profile",
-  GENERATE: "generate",
-  FIX: "fix",
-  PAIRINGS: "pairings",
-  LEARN: "learn",
-};
 
 const TOOL_PAGES = [PAGES.GENERATE, PAGES.FIX, PAGES.PAIRINGS];
 

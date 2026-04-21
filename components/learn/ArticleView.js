@@ -1,6 +1,6 @@
 "use client";
 
-import { PAGES } from "@/components/layout/AppShell";
+import { PAGES } from "@/lib/routes";
 
 export default function ArticleView({ article, onBack, setPage }) {
   return (

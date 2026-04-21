@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base ─────────────────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fdfaf8;
+  font-family: Georgia, "Times New Roman", serif;
+  color: #4d3c28;
+  margin: 0;
+}
+
+::selection {
+  background: #fecdd3;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e3d5c5;
+  border-radius: 3px;
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #fda4af;
+  outline-offset: 0;
+}
+
+/* ── Tailwind component layer ─────────────────────────────────────────── */
+@layer components {
+  /* Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, #fb7185, #b87aaa);
+    color: #fff;
+    border: none;
+    border-radius: 9999px;
+    padding: 0.75rem 2rem;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 4px 16px #fecdd3;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  .btn-primary:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-secondary {
+    background: #fff;
+    color: #6b5540;
+    border: 1px solid #e3d5c5;
+    border-radius: 9999px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover {
+    border-color: #fecdd3;
+    background: #fff1f2;
+  }
+
+  /* Cards */
+  .card {
+    background: #fff;
+    border: 1px solid #f2ece5;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.2s;
+  }
+  .card:hover {
+    border-color: #fecdd3;
+  }
+
+  /* Badges / pills */
+  .pill {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .pill-rose {
+    background: #fff1f2;
+    color: #e11d48;
+  }
+
+  /* Form fields */
+  .input-field {
+    width: 100%;
+    border: 1px solid #e3d5c5;
+    border-radius: 0.5rem;
+    padding: 0.5625rem 0.75rem;
+    font-size: 0.875rem;
+    color: #6b5540;
+    background: #fff;
+    transition: border-color 0.15s;
+  }
+  .input-field:focus {
+    outline: 2px solid #fda4af;
+    outline-offset: 0;
+  }
+
+  /* Layout helpers */
+  .page-container {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+  .page-title {
+    font-family: Georgia, serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #4d3c28;
+    margin-bottom: 0.25rem;
+  }
+  .page-subtitle {
+    color: #a88c65;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+  }
+  .section-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: #a88c65;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.375rem;
+  }
+}

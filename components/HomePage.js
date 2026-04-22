@@ -9,7 +9,7 @@ const FEATURES = [
   { icon: "✨", title: "Look Generator",      desc: "Full routines built from your exact products" },
   { icon: "🔬", title: "Fix My Makeup",       desc: "Diagnose issues and get instant corrections" },
   { icon: "✦",  title: "Smart Pairings",      desc: "Colour harmony and product combination logic" },
-  { icon: "📊", title: "Gap Analysis",        desc: "See which categories are missing from your stash" },
+  { icon: "🤖", title: "AI Evaluation",       desc: "Upload a selfie — get scored on 6 makeup zones" },
   { icon: "📖", title: "Expert Guides",       desc: "In-depth articles on application and colour theory" },
 ];
 
@@ -78,11 +78,12 @@ export default function HomePage({ setPage }) {
       {/* ── How it works ─────────────────────────────────────────────────── */}
       <section className="mb-16">
         <h2 className="font-serif text-2xl text-nude-800 text-center mb-8">How it works</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {[
             { n: 1, icon: "🧴", label: "Build Inventory",    desc: "Add your makeup products once — brand, shade, notes.", page: PAGES.INVENTORY, cta: "Add Products" },
             { n: 2, icon: "✦",  label: "Set Skin Profile",   desc: "Skin tone, undertone, type, and face shape.", page: PAGES.PROFILE,   cta: "Set Profile" },
             { n: 3, icon: "✨", label: "Generate a Look",    desc: "Receive a full routine for any occasion.",            page: PAGES.GENERATE,  cta: "Create Look" },
+            { n: 4, icon: "🤖", label: "AI Evaluation",      desc: "Upload a selfie — get scored on every zone.",         page: PAGES.EVALUATE,  cta: "Evaluate Now" },
           ].map((step) => (
             <div
               key={step.n}

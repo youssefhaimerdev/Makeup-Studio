@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { id: PAGES.PROFILE,   label: "Skin Profile" },
   { id: PAGES.GENERATE,  label: "Generate Look" },
   { id: PAGES.FIX,       label: "Fix Makeup" },
+  { id: PAGES.EVALUATE,  label: "AI Evaluation" },
   { id: PAGES.LEARN,     label: "Learn" },
 ];
 

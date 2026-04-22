@@ -11,6 +11,7 @@ import GeneratePage from "@/components/generator/GeneratePage";
 import FixPage from "@/components/fix/FixPage";
 import PairingsPage from "@/components/pairings/PairingsPage";
 import LearnPage from "@/components/learn/LearnPage";
+import EvaluationPage from "@/components/evaluation/EvaluationPage";
 
 const TOOL_PAGES = [PAGES.GENERATE, PAGES.FIX, PAGES.PAIRINGS];
 
@@ -31,6 +32,7 @@ export default function AppShell() {
       case PAGES.FIX:       return <FixPage />;
       case PAGES.PAIRINGS:  return <PairingsPage />;
       case PAGES.LEARN:     return <LearnPage setPage={navigate} />;
+      case PAGES.EVALUATE:  return <EvaluationPage />;
       default:              return <HomePage setPage={navigate} />;
     }
   }

@@ -1,6 +1,19 @@
 "use client";
 
+const ZONE_ICONS = {
+  Base:      "✦",
+  Concealer: "🔵",
+  Eyes:      "👁",
+  Cheeks:    "🌸",
+  Lips:      "💋",
+  Highlight: "✨",
+  Contour:   "🌑",
+  General:   "🔍",
+};
+
 export default function DiagnosisResult({ result }) {
+  const zoneIcon = ZONE_ICONS[result.zone] || "🔍";
+
   return (
     <div className="flex flex-col gap-4">
       {/* Diagnosis card */}
@@ -8,11 +21,18 @@ export default function DiagnosisResult({ result }) {
         className="rounded-2xl p-5 border border-rose-200"
         style={{ background: "linear-gradient(135deg, #fff1f2, #fdf4f0)" }}
       >
-        <div className="flex gap-3 items-start mb-2">
-          <span className="text-xl">🔍</span>
-          <h3 className="font-serif text-lg text-nude-800">Diagnosis</h3>
+        <div className="flex items-start gap-3 mb-3">
+          <span className="text-xl shrink-0">{zoneIcon}</span>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <h3 className="font-serif text-lg text-nude-800">Diagnosis</h3>
+              {result.zone && result.zone !== "General" && (
+                <span className="pill bg-rose-100 text-rose-600">{result.zone} Zone</span>
+              )}
+            </div>
+            <p className="text-sm text-nude-600 leading-relaxed">{result.diagnosis}</p>
+          </div>
         </div>
-        <p className="text-sm text-nude-600 leading-relaxed">{result.diagnosis}</p>
       </div>
 
       {/* Steps */}

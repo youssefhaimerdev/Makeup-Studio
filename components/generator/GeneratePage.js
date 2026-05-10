@@ -14,7 +14,7 @@ import { ButtonPrimary } from "@/components/ui/Button";
 const LOOK_KEY = "mis_last_look";
 
 export default function GeneratePage() {
-  const { inventory, profile, hydrated } = useApp();
+  const { inventory, profile, hydrated, markFirstLook } = useApp();
 
   const [occasion,  setOccasion]  = useState(OCCASIONS[0]);
   const [intensity, setIntensity] = useState(INTENSITIES[2]);
@@ -28,10 +28,10 @@ export default function GeneratePage() {
     setResult(null);
     setTimeout(() => {
       const look = generateLook(inventory, profile, occasion, intensity, time);
-      // Persist for AI Evaluation page context
       saveToStorage(LOOK_KEY, { occasion, intensity, steps: look.steps });
       setResult(look);
       setLoading(false);
+      markFirstLook(); // triggers confetti + toast on first ever look
     }, 600);
   }
 

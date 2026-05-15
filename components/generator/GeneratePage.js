@@ -77,7 +77,7 @@ export default function GeneratePage() {
       {/* Results */}
       {result && (
         <>
-          <LookResult result={result} />
+          <LookResult result={result} profile={profile} />
           <div className="mt-6 p-4 rounded-xl border border-rose-100 bg-rose-50/60 flex items-center justify-between gap-4 flex-wrap">
             <div>
               <p className="text-sm font-semibold text-rose-700">Look saved for AI Evaluation</p>

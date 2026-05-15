@@ -7,131 +7,7 @@ import { TRENDING_LOOKS, SOCIAL_PROOF, MARQUEE_ITEMS } from "@/lib/trending";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 import { ButtonPrimary, ButtonSecondary } from "./ui/Button";
 
-// ── SVG Illustrated Face ──────────────────────────────────────────────────
-function FaceIllustration() {
-  return (
-    <svg viewBox="0 0 320 380" fill="none" xmlns="http://www.w3.org/2000/svg"
-      className="w-full max-w-[300px] md:max-w-[340px] drop-shadow-xl">
-      <defs>
-        <radialGradient id="skinGrad" cx="50%" cy="45%" r="55%">
-          <stop offset="0%" stopColor="#f5e6d3"/>
-          <stop offset="100%" stopColor="#e8c9a8"/>
-        </radialGradient>
-        <radialGradient id="blushGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#fb7185" stopOpacity="0.45"/>
-          <stop offset="100%" stopColor="#fb7185" stopOpacity="0"/>
-        </radialGradient>
-        <radialGradient id="hlGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.9"/>
-          <stop offset="100%" stopColor="#fff" stopOpacity="0"/>
-        </radialGradient>
-        <filter id="softBlur">
-          <feGaussianBlur stdDeviation="2.5"/>
-        </filter>
-        <filter id="glowFilter">
-          <feGaussianBlur stdDeviation="4" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-        <linearGradient id="lipGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#e11d48"/>
-          <stop offset="100%" stopColor="#9f1239"/>
-        </linearGradient>
-        <linearGradient id="eyeshadowGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#b87aaa"/>
-          <stop offset="100%" stopColor="#7d3f71" stopOpacity="0.6"/>
-        </linearGradient>
-        <clipPath id="faceClip">
-          <ellipse cx="160" cy="175" rx="118" ry="145"/>
-        </clipPath>
-      </defs>
-
-      {/* Neck */}
-      <rect x="135" y="300" width="50" height="55" rx="8" fill="#e8c9a8"/>
-
-      {/* Face base */}
-      <ellipse cx="160" cy="175" rx="118" ry="145" fill="url(#skinGrad)"/>
-
-      {/* Hair — top */}
-      <ellipse cx="160" cy="68" rx="122" ry="52" fill="#3d2010"/>
-      <ellipse cx="50" cy="120" rx="38" ry="100" fill="#3d2010"/>
-      <ellipse cx="270" cy="120" rx="38" ry="100" fill="#3d2010"/>
-      {/* Hair highlight */}
-      <ellipse cx="140" cy="55" rx="45" ry="20" fill="#6b3a1f" opacity="0.5"/>
-
-      {/* Blush — left */}
-      <ellipse cx="82" cy="218" rx="42" ry="30" fill="url(#blushGrad)" filter="url(#softBlur)"/>
-      {/* Blush — right */}
-      <ellipse cx="238" cy="218" rx="42" ry="30" fill="url(#blushGrad)" filter="url(#softBlur)"/>
-
-      {/* Eyeshadow left */}
-      <ellipse cx="107" cy="152" rx="32" ry="14" fill="url(#eyeshadowGrad)" opacity="0.75" filter="url(#softBlur)"/>
-      {/* Eyeshadow right */}
-      <ellipse cx="213" cy="152" rx="32" ry="14" fill="url(#eyeshadowGrad)" opacity="0.75" filter="url(#softBlur)"/>
-
-      {/* Eyes white left */}
-      <ellipse cx="107" cy="162" rx="26" ry="14" fill="white"/>
-      {/* Eyes white right */}
-      <ellipse cx="213" cy="162" rx="26" ry="14" fill="white"/>
-      {/* Iris left */}
-      <circle cx="107" cy="162" r="9" fill="#5c3d1e"/>
-      <circle cx="107" cy="162" r="5.5" fill="#2e1a0e"/>
-      <circle cx="103" cy="158" r="2" fill="white" opacity="0.9"/>
-      {/* Iris right */}
-      <circle cx="213" cy="162" r="9" fill="#5c3d1e"/>
-      <circle cx="213" cy="162" r="5.5" fill="#2e1a0e"/>
-      <circle cx="209" cy="158" r="2" fill="white" opacity="0.9"/>
-
-      {/* Eyeliner upper left */}
-      <path d="M81 155 Q107 148 133 155 L135 158 Q107 151 79 158 Z" fill="#1a0a00" opacity="0.9"/>
-      {/* Eyeliner wing left */}
-      <path d="M133 155 L142 149 L135 158 Z" fill="#1a0a00"/>
-      {/* Eyeliner upper right */}
-      <path d="M187 155 Q213 148 239 155 L241 158 Q213 151 185 158 Z" fill="#1a0a00" opacity="0.9"/>
-      {/* Eyeliner wing right */}
-      <path d="M187 155 L178 149 L185 158 Z" fill="#1a0a00"/>
-
-      {/* Lashes left (simple dashes) */}
-      {[84,92,100,108,116,124,131].map((x,i) => (
-        <line key={i} x1={x} y1="155" x2={x-1} y2={147} stroke="#1a0a00" strokeWidth="1.5" strokeLinecap="round"/>
-      ))}
-      {/* Lashes right */}
-      {[189,197,205,213,221,229,236].map((x,i) => (
-        <line key={i} x1={x} y1="155" x2={x+1} y2={147} stroke="#1a0a00" strokeWidth="1.5" strokeLinecap="round"/>
-      ))}
-
-      {/* Eyebrows left */}
-      <path d="M78 138 Q107 128 135 136" stroke="#3d2010" strokeWidth="5" strokeLinecap="round" fill="none"/>
-      <path d="M78 138 Q107 128 135 136" stroke="#5c3d1e" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-      {/* Eyebrows right */}
-      <path d="M185 136 Q213 128 242 138" stroke="#3d2010" strokeWidth="5" strokeLinecap="round" fill="none"/>
-      <path d="M185 136 Q213 128 242 138" stroke="#5c3d1e" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-
-      {/* Nose */}
-      <path d="M147 198 Q140 214 148 220 Q160 224 172 220 Q180 214 173 198" stroke="#c4a882" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-
-      {/* Lips */}
-      <path d="M130 258 Q145 250 160 252 Q175 250 190 258 Q180 268 160 270 Q140 268 130 258 Z" fill="url(#lipGrad)"/>
-      {/* Upper lip */}
-      <path d="M130 258 Q142 262 160 260 Q178 262 190 258 Q182 252 170 248 Q160 246 150 248 Q138 252 130 258 Z" fill="#e11d48"/>
-      {/* Cupid bow */}
-      <path d="M143 250 Q152 244 160 247 Q168 244 177 250" stroke="#9f1239" strokeWidth="1" fill="none"/>
-      {/* Lip highlight */}
-      <ellipse cx="152" cy="264" rx="10" ry="3" fill="white" opacity="0.25" filter="url(#softBlur)"/>
-
-      {/* Highlighter cheekbones */}
-      <ellipse cx="90" cy="200" rx="22" ry="10" fill="url(#hlGrad)" filter="url(#softBlur)"/>
-      <ellipse cx="230" cy="200" rx="22" ry="10" fill="url(#hlGrad)" filter="url(#softBlur)"/>
-      {/* Bridge highlight */}
-      <ellipse cx="160" cy="185" rx="6" ry="18" fill="url(#hlGrad)" filter="url(#softBlur)"/>
-
-      {/* Floating product dots */}
-      <circle cx="290" cy="100" r="14" fill="#fb7185" opacity="0.15" className="animate-float"/>
-      <circle cx="30"  cy="130" r="10" fill="#b87aaa" opacity="0.18" className="animate-float-delayed"/>
-      <circle cx="295" cy="260" r="9"  fill="#e8956a" opacity="0.15" className="animate-float-slow"/>
-      <circle cx="25"  cy="270" r="12" fill="#fecdd3" opacity="0.2" className="animate-float"/>
-    </svg>
-  );
-}
+import RealisticFace from "./ui/RealisticFace";
 
 // ── Floating product badges ───────────────────────────────────────────────
 function FloatingBadge({ children, style, className = "" }) {
@@ -383,7 +259,7 @@ export default function HomePage({ setPage }) {
           <div className="relative flex justify-center lg:justify-end animate-fade-in"
                style={{ animationDelay: "200ms" }}>
             <div className="relative">
-              <FaceIllustration />
+              <RealisticFace width={360} height={440} animated={true} className="w-full max-w-[320px] md:max-w-[360px]" />
 
               {/* Floating product labels */}
               <FloatingBadge

@@ -7,6 +7,8 @@ import {
   SKIN_CONCERNS, EYE_COLOURS, HAIR_COLOURS,
 } from "@/lib/constants";
 import { ButtonPrimary } from "@/components/ui/Button";
+import AiFaceScan from "./AiFaceScan";
+import { ProfileFace } from "@/components/ui/RealisticFace";
 
 // ── Completion score ──────────────────────────────────────────────────────
 const PROFILE_FIELDS = [
@@ -410,8 +412,18 @@ export default function ProfilePage() {
     wearsGlasses: false,
     ...profile,
   });
-  const [saved,    setSaved]    = useState(false);
-  const [activeTab, setActiveTab] = useState("skin"); // skin | features | concerns
+  const [saved,      setSaved]      = useState(false);
+  const [activeTab,  setActiveTab]  = useState("skin");
+  const [showScan,   setShowScan]   = useState(false);
+
+  function handleScanApply(scannedProfile) {
+    const merged = { ...local, ...scannedProfile };
+    setLocal(merged);
+    updateProfile(merged);
+    setShowScan(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  }
 
   // Sync when profile loads from storage
   useEffect(() => {
@@ -453,6 +465,43 @@ export default function ProfilePage() {
           </p>
         </div>
         <CompletionRing pct={completion} />
+      </div>
+
+      {/* ── AI Face Scan + Live Preview ─────────────────────────── */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6 items-start">
+        {/* Live face preview */}
+        <div className="flex flex-col items-center gap-2 shrink-0">
+          <ProfileFace
+            profile={local}
+            width={140} height={170}
+            animated={false}
+            className="!rounded-2xl"
+          />
+          {local.aiScanned && (
+            <span className="pill bg-green-50 text-green-600 border border-green-100">✓ AI Scanned</span>
+          )}
+        </div>
+
+        {/* Scan CTA or scan component */}
+        <div className="flex-1 min-w-0">
+          {!showScan ? (
+            <div className="p-4 rounded-2xl border h-full flex flex-col justify-center"
+                 style={{ background:"linear-gradient(135deg,#fff1f2,#f8f2f7)", borderColor:"#fecdd3" }}>
+              <p className="text-[10px] font-bold uppercase tracking-widest font-sans mb-1" style={{ color:"var(--text-muted)" }}>
+                ✦ New feature
+              </p>
+              <h3 className="font-serif text-lg font-bold mb-1" style={{ color:"var(--text-primary)" }}>AI Face Scan</h3>
+              <p className="text-xs font-sans leading-relaxed mb-3" style={{ color:"var(--text-muted)" }}>
+                Upload a selfie — we detect your face shape, skin tone, eye shape, brow type, and more in seconds. Everything stays on your device.
+              </p>
+              <button onClick={() => setShowScan(true)} className="btn-primary !py-2 !px-5 !text-sm !shadow-none self-start">
+                🤳 Scan My Face
+              </button>
+            </div>
+          ) : (
+            <AiFaceScan onApply={handleScanApply} />
+          )}
+        </div>
       </div>
 
       {/* ── Tabs ───────────────────────────────────────────────────── */}

@@ -7,7 +7,7 @@ import { TRENDING_LOOKS, SOCIAL_PROOF, MARQUEE_ITEMS } from "@/lib/trending";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 import { ButtonPrimary, ButtonSecondary } from "./ui/Button";
 
-import RealisticFace from "./ui/RealisticFace";
+import RealisticFace3D from "./ui/RealisticFace3D";
 
 // ── Floating product badges ───────────────────────────────────────────────
 function FloatingBadge({ children, style, className = "" }) {
@@ -259,7 +259,7 @@ export default function HomePage({ setPage }) {
           <div className="relative flex justify-center lg:justify-end animate-fade-in"
                style={{ animationDelay: "200ms" }}>
             <div className="relative">
-              <RealisticFace width={360} height={440} animated={true} className="w-full max-w-[320px] md:max-w-[360px]" />
+              <RealisticFace3D width={360} height={440} animated={true} className="w-full max-w-[320px] md:max-w-[360px]" />
 
               {/* Floating product labels */}
               <FloatingBadge

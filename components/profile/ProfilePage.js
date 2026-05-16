@@ -8,7 +8,7 @@ import {
 } from "@/lib/constants";
 import { ButtonPrimary } from "@/components/ui/Button";
 import AiFaceScan from "./AiFaceScan";
-import { ProfileFace } from "@/components/ui/RealisticFace";
+import { ProfileFace } from "@/components/ui/RealisticFace3D";
 
 // ── Completion score ──────────────────────────────────────────────────────
 const PROFILE_FIELDS = [

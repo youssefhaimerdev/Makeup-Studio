@@ -6,7 +6,7 @@ import FaceMap from "./FaceMap";
 import SaveLookPanel from "./SaveLookPanel";
 import ShareButton from "./ShareButton";
 import TutorialMode from "./TutorialMode";
-import AnimatedMakeupCanvas from "./AnimatedMakeupCanvas";
+import MakeupStudio from "./MakeupStudio";
 
 function StepRow({ step, index, isExpanded, onToggle, palette, isCurrent, onClick }) {
   const hasProduct = !!step.product;
@@ -48,7 +48,6 @@ export default function LookResult({ result, profile = {} }) {
   const [showAnalysis,   setShowAnalysis]    = useState(false);
   const [activeView,     setActiveView]      = useState("steps");
   const [tutorialOpen,   setTutorialOpen]    = useState(false);
-  const [canvasStep,     setCanvasStep]      = useState(0);
 
   const { steps = [], missing = [], analysis = [], palette, applyZones, trendName, occasion, intensity, estimatedMinutes, productCount } = result;
   const validSteps = steps.filter(s => s.product);

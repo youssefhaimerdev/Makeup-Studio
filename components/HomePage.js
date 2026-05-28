@@ -7,7 +7,6 @@ import { TRENDING_LOOKS, SOCIAL_PROOF, MARQUEE_ITEMS } from "@/lib/trending";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 import { ButtonPrimary, ButtonSecondary } from "./ui/Button";
 
-import RealisticFace3D from "./ui/RealisticFace3D";
 
 // ── Floating product badges ───────────────────────────────────────────────
 function FloatingBadge({ children, style, className = "" }) {
@@ -259,7 +258,18 @@ export default function HomePage({ setPage }) {
           <div className="relative flex justify-center lg:justify-end animate-fade-in"
                style={{ animationDelay: "200ms" }}>
             <div className="relative">
-              <RealisticFace3D width={360} height={440} animated={true} className="w-full max-w-[320px] md:max-w-[360px]" />
+              <div className="relative" style={{ borderRadius:24, overflow:"hidden", boxShadow:"0 20px 60px rgba(0,0,0,0.25)", maxWidth:320 }}>
+              <img
+                src="/faces/mannequin.png"
+                alt="Lumière Beauty Mannequin"
+                style={{ width:"100%", display:"block" }}
+              />
+              {/* Floating makeup preview hint */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold font-sans"
+                   style={{ background:"rgba(0,0,0,0.55)", color:"white", backdropFilter:"blur(8px)" }}>
+                ✦ Interactive makeup engine
+              </div>
+            </div>
 
               {/* Floating product labels */}
               <FloatingBadge

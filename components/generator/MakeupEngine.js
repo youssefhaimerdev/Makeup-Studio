@@ -1,75 +1,96 @@
 "use client";
 import { useEffect, useRef, useCallback, useState } from "react";
 
-const FACE_W = 1024, FACE_H = 1536;
-
-const MASK_SRCS = {
-  lips:           "/masks/lips-mask.png",
-  blushLeft:      "/masks/blush-left-mask.png",
-  blushRight:     "/masks/blush-right-mask.png",
-  eyeshadowLeft:  "/masks/eyeshadow-left-mask.png",
-  eyeshadowRight: "/masks/eyeshadow-right-mask.png",
-  eyelinerLeft:   "/masks/eyeliner-left-mask.png",
-  eyelinerRight:  "/masks/eyeliner-right-mask.png",
-  mascaraLeft:    "/masks/mascara-left-mask.png",
-  mascaraRight:   "/masks/mascara-right-mask.png",
-  contour:        "/masks/contour-mask.png",
-  highlight:      "/masks/highlight-mask.png",
-};
+/**
+ * MakeupEngine v2
+ * Uses face-landmarks.json (normalized 0-1 coordinates detected from the mannequin)
+ * to draw makeup zones directly as Canvas paths scaled to ANY canvas size.
+ * No PNG masks. Scales perfectly on every screen and resolution.
+ */
 
 function hexToRgb(hex) {
-  try {
-    const h = (hex || "#ff0000").replace("#", "");
-    return [parseInt(h.slice(0,2),16)||0, parseInt(h.slice(2,4),16)||0, parseInt(h.slice(4,6),16)||0];
-  } catch { return [255, 0, 0]; }
+  const h = (hex||"#ff0000").replace("#","");
+  return [parseInt(h.slice(0,2),16)||0, parseInt(h.slice(2,4),16)||0, parseInt(h.slice(4,6),16)||0];
 }
 
 function loadImg(src) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const img = new window.Image();
     img.onload  = () => resolve(img);
-    img.onerror = () => resolve(null); // never reject — just return null
+    img.onerror = () => resolve(null);
     img.src = src;
   });
 }
 
-// Apply one color layer using a mask, with blend mode
-function applyLayer(ctx, maskImg, color, opacity, blendMode, W, H) {
-  if (!maskImg || !ctx || opacity <= 0) return;
-  try {
-    const [r, g, b] = hexToRgb(color);
+/**
+ * Draw a makeup zone as a soft filled shape on an offscreen canvas.
+ * Returns the offscreen canvas to be composited with a blend mode.
+ */
+function buildZoneCanvas(zone, color, opacity, W, H) {
+  const [r,g,b] = hexToRgb(color);
+  const oc = document.createElement("canvas");
+  oc.width = W; oc.height = H;
+  const ctx = oc.getContext("2d");
 
-    // Offscreen canvas for the mask
-    const mc = document.createElement("canvas");
-    mc.width = W; mc.height = H;
-    const mctx = mc.getContext("2d");
-    mctx.drawImage(maskImg, 0, 0, W, H);
-    const maskData = mctx.getImageData(0, 0, W, H).data;
+  const blur = (zone.blur || 6) * (W / 1024); // scale blur with canvas size
 
-    // Build colored pixels shaped by mask alpha
-    const cc = document.createElement("canvas");
-    cc.width = W; cc.height = H;
-    const cctx = cc.getContext("2d");
-    const colorImg = cctx.createImageData(W, H);
-    const cd = colorImg.data;
+  if (zone.type === "lips") {
+    const cx   = zone.cx   * W;
+    const midY = zone.midY * H;
+    const topY = zone.topY * H;
+    const botY = zone.botY * H;
+    const rx   = zone.rx   * W;
+    const upperRy = zone.upperRy * H;
+    const lowerRy = zone.lowerRy * H;
 
-    for (let i = 0; i < maskData.length; i += 4) {
-      const alpha = (maskData[i + 3] / 255) * (maskData[i] / 255) * opacity;
-      cd[i]     = r;
-      cd[i + 1] = g;
-      cd[i + 2] = b;
-      cd[i + 3] = Math.min(255, Math.round(alpha * 255));
-    }
-    cctx.putImageData(colorImg, 0, 0);
+    ctx.filter = `blur(${blur * 0.4}px)`;
+    // Upper lip
+    ctx.beginPath();
+    ctx.ellipse(cx, midY - upperRy * 0.3, rx, upperRy * 1.1, 0, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${r},${g},${b},${opacity})`;
+    ctx.fill();
+    // Lower lip
+    ctx.beginPath();
+    ctx.ellipse(cx, midY + lowerRy * 0.3, rx * 0.95, lowerRy * 1.15, 0, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${r},${g},${b},${opacity})`;
+    ctx.fill();
+    ctx.filter = "none";
 
+  } else if (zone.type === "ellipse") {
+    const cx = zone.cx * W;
+    const cy = zone.cy * H;
+    const rx = zone.rx * W;
+    const ry = zone.ry * H;
+
+    // Use radial gradient for soft natural edges
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rx, ry));
+    grad.addColorStop(0,   `rgba(${r},${g},${b},${opacity})`);
+    grad.addColorStop(0.55,`rgba(${r},${g},${b},${opacity * 0.7})`);
+    grad.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+
+    ctx.filter = `blur(${blur}px)`;
     ctx.save();
-    ctx.globalCompositeOperation = blendMode;
-    ctx.globalAlpha = 1;
-    ctx.drawImage(cc, 0, 0);
+    ctx.scale(1, ry / rx); // squash to ellipse
+    ctx.beginPath();
+    ctx.arc(cx, cy * (rx / ry), rx, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
     ctx.restore();
-  } catch (e) {
-    console.warn("applyLayer failed:", e);
+    ctx.filter = "none";
   }
+
+  return oc;
+}
+
+/**
+ * Composite a zone canvas onto the main ctx with blend mode.
+ */
+function composite(ctx, zoneCanvas, blendMode) {
+  ctx.save();
+  ctx.globalCompositeOperation = blendMode;
+  ctx.globalAlpha = 1;
+  ctx.drawImage(zoneCanvas, 0, 0);
+  ctx.restore();
 }
 
 const mkState = () => ({
@@ -84,7 +105,7 @@ const mkState = () => ({
 
 export function useMakeupEngine(canvasRef) {
   const faceRef   = useRef(null);
-  const masksRef  = useRef({});
+  const zonesRef  = useRef(null);
   const stateRef  = useRef(mkState());
   const readyRef  = useRef(false);
 
@@ -96,24 +117,24 @@ export function useMakeupEngine(canvasRef) {
     let alive = true;
     async function load() {
       try {
-        const face = await loadImg("/faces/mannequin.png");
-        if (!face) throw new Error("Could not load mannequin image");
+        // Load face image and zone data in parallel
+        const [face, lmRes] = await Promise.all([
+          loadImg("/faces/mannequin.png"),
+          fetch("/face-landmarks.json").then(r => r.json()).catch(() => null),
+        ]);
 
-        const masks = {};
-        await Promise.all(
-          Object.entries(MASK_SRCS).map(async ([k, src]) => {
-            masks[k] = await loadImg(src); // null if failed — handled gracefully
-          })
-        );
-
+        if (!face) throw new Error("Could not load mannequin.png");
+        if (!lmRes) throw new Error("Could not load face-landmarks.json");
         if (!alive) return;
+
         faceRef.current  = face;
-        masksRef.current = masks;
+        zonesRef.current = lmRes.zones;
         readyRef.current = true;
         setReady(true);
         setLoading(false);
       } catch (e) {
         if (!alive) return;
+        console.error("MakeupEngine:", e);
         setError(e.message);
         setLoading(false);
       }
@@ -125,63 +146,80 @@ export function useMakeupEngine(canvasRef) {
   const render = useCallback(() => {
     const canvas = canvasRef.current;
     const face   = faceRef.current;
-    if (!canvas || !face || !readyRef.current) return;
+    const zones  = zonesRef.current;
+    if (!canvas || !face || !zones || !readyRef.current) return;
 
     try {
-      const W = FACE_W, H = FACE_H;
+      // Always render at native face resolution for max quality
+      const W = face.naturalWidth  || 1024;
+      const H = face.naturalHeight || 1536;
       canvas.width  = W;
       canvas.height = H;
       const ctx = canvas.getContext("2d");
       const s   = stateRef.current;
-      const m   = masksRef.current;
 
       // 1. Base face
       ctx.clearRect(0, 0, W, H);
       ctx.drawImage(face, 0, 0, W, H);
 
-      // 2. Contour — multiply darkens naturally
-      applyLayer(ctx, m.contour, s.contourColor, s.contourOpacity, "multiply", W, H);
+      // 2. Contour (multiply — darkens hollows naturally)
+      if (s.contourOpacity > 0) {
+        composite(ctx, buildZoneCanvas(zones.left_contour,  s.contourColor, s.contourOpacity * 0.7, W, H), "multiply");
+        composite(ctx, buildZoneCanvas(zones.right_contour, s.contourColor, s.contourOpacity * 0.7, W, H), "multiply");
+      }
 
-      // 3. Blush — soft-light for natural warmth
-      applyLayer(ctx, m.blushLeft,  s.blushColor, s.blushOpacity, "soft-light", W, H);
-      applyLayer(ctx, m.blushRight, s.blushColor, s.blushOpacity, "soft-light", W, H);
+      // 3. Blush (soft-light — warm natural flush)
+      if (s.blushOpacity > 0) {
+        composite(ctx, buildZoneCanvas(zones.left_blush,  s.blushColor, s.blushOpacity * 0.8, W, H), "soft-light");
+        composite(ctx, buildZoneCanvas(zones.right_blush, s.blushColor, s.blushOpacity * 0.8, W, H), "soft-light");
+      }
 
-      // 4. Eyeshadow — multiply for depth, overlay for vibrancy
-      applyLayer(ctx, m.eyeshadowLeft,  s.eyeColor, s.eyeOpacity * 0.85, "multiply", W, H);
-      applyLayer(ctx, m.eyeshadowRight, s.eyeColor, s.eyeOpacity * 0.85, "multiply", W, H);
-      applyLayer(ctx, m.eyeshadowLeft,  s.eyeColor, s.eyeOpacity * 0.40, "overlay",  W, H);
-      applyLayer(ctx, m.eyeshadowRight, s.eyeColor, s.eyeOpacity * 0.40, "overlay",  W, H);
+      // 4. Eyeshadow (multiply for depth + overlay for colour)
+      if (s.eyeOpacity > 0) {
+        composite(ctx, buildZoneCanvas(zones.left_eyeshadow,  s.eyeColor, s.eyeOpacity * 0.75, W, H), "multiply");
+        composite(ctx, buildZoneCanvas(zones.right_eyeshadow, s.eyeColor, s.eyeOpacity * 0.75, W, H), "multiply");
+        composite(ctx, buildZoneCanvas(zones.left_eyeshadow,  s.eyeColor, s.eyeOpacity * 0.35, W, H), "overlay");
+        composite(ctx, buildZoneCanvas(zones.right_eyeshadow, s.eyeColor, s.eyeOpacity * 0.35, W, H), "overlay");
+      }
 
-      // 5. Eyeliner — multiply, near black
-      applyLayer(ctx, m.eyelinerLeft,  "#080202", s.eyelinerOpacity, "multiply", W, H);
-      applyLayer(ctx, m.eyelinerRight, "#080202", s.eyelinerOpacity, "multiply", W, H);
+      // 5. Eyeliner (multiply, precise)
+      if (s.eyelinerOpacity > 0) {
+        composite(ctx, buildZoneCanvas(zones.left_eyeliner,  "#0a0305", s.eyelinerOpacity * 0.9, W, H), "multiply");
+        composite(ctx, buildZoneCanvas(zones.right_eyeliner, "#0a0305", s.eyelinerOpacity * 0.9, W, H), "multiply");
+      }
 
-      // 6. Mascara — multiply, darken lash zone
-      applyLayer(ctx, m.mascaraLeft,  "#060101", s.mascaraOpacity, "multiply", W, H);
-      applyLayer(ctx, m.mascaraRight, "#060101", s.mascaraOpacity, "multiply", W, H);
+      // 6. Mascara (multiply, lash line)
+      if (s.mascaraOpacity > 0) {
+        composite(ctx, buildZoneCanvas(zones.left_mascara,  "#060102", s.mascaraOpacity * 0.85, W, H), "multiply");
+        composite(ctx, buildZoneCanvas(zones.right_mascara, "#060102", s.mascaraOpacity * 0.85, W, H), "multiply");
+      }
 
-      // 7. Highlight — screen brightens peaks
-      applyLayer(ctx, m.highlight, "#f8e8c0", s.highlightOpacity, "screen", W, H);
+      // 7. Highlight (screen — brightens cheekbones)
+      if (s.highlightOpacity > 0) {
+        composite(ctx, buildZoneCanvas(zones.left_highlight,  "#f8e8c0", s.highlightOpacity * 0.7, W, H), "screen");
+        composite(ctx, buildZoneCanvas(zones.right_highlight, "#f8e8c0", s.highlightOpacity * 0.7, W, H), "screen");
+        composite(ctx, buildZoneCanvas(zones.nose_highlight,  "#f8f0d8", s.highlightOpacity * 0.5, W, H), "screen");
+      }
 
-      // 8. Lipstick — multiply + overlay + screen sheen
-      applyLayer(ctx, m.lips, s.lipColor, s.lipOpacity * 0.75, "multiply", W, H);
-      applyLayer(ctx, m.lips, s.lipColor, s.lipOpacity * 0.55, "overlay",  W, H);
-      applyLayer(ctx, m.lips, "#ffffff",  s.lipOpacity * 0.12, "screen",   W, H);
+      // 8. Lips (multiply + overlay + screen sheen — triple pass for depth)
+      if (s.lipOpacity > 0) {
+        composite(ctx, buildZoneCanvas(zones.lips, s.lipColor, s.lipOpacity * 0.70, W, H), "multiply");
+        composite(ctx, buildZoneCanvas(zones.lips, s.lipColor, s.lipOpacity * 0.50, W, H), "overlay");
+        composite(ctx, buildZoneCanvas(zones.lips, "#ffffff",  s.lipOpacity * 0.10, W, H), "screen");
+      }
 
     } catch (e) {
       console.warn("MakeupEngine render error:", e);
     }
   }, [canvasRef]);
 
-  // Render once assets are ready
-  useEffect(() => {
-    if (ready) render();
-  }, [ready]); // eslint-disable-line
+  // Render once assets load
+  useEffect(() => { if (ready) render(); }, [ready]); // eslint-disable-line
 
-  const update = (changes) => {
+  const update = useCallback((changes) => {
     Object.assign(stateRef.current, changes);
     render();
-  };
+  }, [render]);
 
   return {
     ready, loading, error,

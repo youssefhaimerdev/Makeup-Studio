@@ -2,13 +2,12 @@
 import { useState } from "react";
 import Badge from "@/components/ui/Badge";
 import MoodCard from "./MoodCard";
-import FaceMap from "./FaceMap";
 import SaveLookPanel from "./SaveLookPanel";
 import ShareButton from "./ShareButton";
 import TutorialMode from "./TutorialMode";
 import MakeupStudio from "./MakeupStudio";
 
-function StepRow({ step, index, isExpanded, onToggle, palette }) {
+function StepRow({ step, index, isExpanded, onToggle }) {
   const hasProduct = !!step.product;
   const dotBg = hasProduct ? (step.product.shadeHex || "#c4a882") : "#e3d5c5";
   return (
@@ -25,7 +24,7 @@ function StepRow({ step, index, isExpanded, onToggle, palette }) {
                 {step.product.shadeHex && <span className="inline-block w-2.5 h-2.5 rounded-full border border-white shadow-sm shrink-0" style={{ background:step.product.shadeHex }}/>}
                 {step.product.brand||""}{step.product.brand&&step.product.shade?" — ":""}{step.product.shade||(!step.product.brand?"Your product":"")}
               </div>
-            : <div className="text-xs font-sans text-rose-400">⚠ Not in inventory</div>}
+            : <div className="text-xs font-sans text-rose-400">Not in inventory</div>}
         </div>
         {(step.coverage||step.intensity) && <Badge variant="nude">{step.coverage||step.intensity}</Badge>}
         <span className="text-sm shrink-0" style={{ color:"var(--text-faint)" }}>{isExpanded?"▲":"▼"}</span>
@@ -45,12 +44,11 @@ export default function LookResult({ result, profile = {} }) {
   const [activeView,   setActiveView]   = useState("steps");
   const [tutorialOpen, setTutorialOpen] = useState(false);
 
-  const { steps=[], missing=[], analysis=[], palette, applyZones, trendName, estimatedMinutes, productCount } = result;
+  const { steps=[], missing=[], analysis=[], estimatedMinutes, productCount } = result;
 
   const TABS = [
     { id:"steps",  label:"📋 Steps"      },
     { id:"canvas", label:"🎨 Live Apply" },
-    { id:"map",    label:"🗺 Face Map"   },
   ];
 
   return (
@@ -82,7 +80,7 @@ export default function LookResult({ result, profile = {} }) {
         <div className="flex border-b" style={{ borderColor:"var(--border)" }}>
           {TABS.map(tab=>(
             <button key={tab.id} onClick={()=>setActiveView(tab.id)}
-              className={`flex-1 py-3 text-xs sm:text-sm font-semibold font-sans cursor-pointer border-none border-b-2 transition-all ${activeView===tab.id?"border-rose-400 text-rose-600":"border-transparent"}`}
+              className={`flex-1 py-3 text-sm font-semibold font-sans cursor-pointer border-none border-b-2 transition-all ${activeView===tab.id?"border-rose-400 text-rose-600":"border-transparent"}`}
               style={{ background:activeView===tab.id?"rgba(255,241,242,0.5)":"transparent", color:activeView===tab.id?undefined:"var(--text-muted)" }}>
               {tab.label}
             </button>
@@ -94,29 +92,11 @@ export default function LookResult({ result, profile = {} }) {
               {steps.map((step,i)=>(
                 <StepRow key={i} step={step} index={i}
                   isExpanded={expandedStep===i}
-                  onToggle={()=>setExpandedStep(expandedStep===i?null:i)}
-                  palette={palette}/>
+                  onToggle={()=>setExpandedStep(expandedStep===i?null:i)}/>
               ))}
             </div>
           )}
           {activeView==="canvas" && <MakeupStudio/>}
-          {activeView==="map" && (
-            <div className="flex flex-col sm:flex-row gap-6 items-start">
-              <FaceMap palette={palette} applyZones={applyZones} trendName={trendName}/>
-              <div className="flex-1">
-                <p className="text-xs font-bold font-sans uppercase tracking-widest mb-3" style={{ color:"var(--text-muted)" }}>Active zones</p>
-                <div className="flex flex-col gap-2">
-                  {[{zone:"skin",label:"Base",icon:"✦"},{zone:"eyes",label:"Eyes",icon:"👁"},{zone:"brows",label:"Brows",icon:"〰"},{zone:"blush",label:"Blush",icon:"🌸"},{zone:"contour",label:"Contour",icon:"🌑"},{zone:"highlight",label:"Highlight",icon:"✨"},{zone:"lips",label:"Lips",icon:"💋"}]
-                    .filter(z=>applyZones?.[z.zone]).map(z=>(
-                    <div key={z.zone} className="flex items-center gap-2">
-                      <span className="text-sm">{z.icon}</span>
-                      <span className="text-xs font-sans" style={{ color:"var(--text-muted)" }}>{z.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

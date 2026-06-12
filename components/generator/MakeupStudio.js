@@ -28,24 +28,50 @@ const ZONES = {
 
 function Zone({ zone, color, opacity }) {
   if (opacity <= 0) return null;
-  const isRadial = zone.blur > 8;
-  const bg = isRadial
-    ? `radial-gradient(ellipse at center, ${color}ee 0%, ${color}88 45%, ${color}00 100%)`
-    : color;
+  const isSoft = zone.blur > 8;
+
+  if (isSoft) {
+    // Soft zones (blush, contour, highlight): radial gradient that fades to transparent
+    // No overflow:hidden so the gradient can spread softly beyond the div
+    return (
+      <div style={{
+        position:      "absolute",
+        top:           `${zone.top}%`,
+        left:          `${zone.left}%`,
+        width:         `${zone.width}%`,
+        height:        `${zone.height}%`,
+        background:    `radial-gradient(ellipse at center, ${color}cc 0%, ${color}77 40%, ${color}00 100%)`,
+        mixBlendMode:  zone.blend,
+        opacity:       opacity,
+        borderRadius:  "50%",
+        filter:        `blur(${zone.blur * 0.35}px)`,
+        pointerEvents: "none",
+      }}/>
+    );
+  }
+
+  // Precise zones (lips, eyeliner, eyeshadow, mascara):
+  // Outer div clips to ellipse via overflow:hidden — fixes mix-blend-mode+border-radius bug
+  // Inner div does the actual blending
   return (
     <div style={{
-      position:        "absolute",
-      top:             `${zone.top}%`,
-      left:            `${zone.left}%`,
-      width:           `${zone.width}%`,
-      height:          `${zone.height}%`,
-      background:      bg,
-      mixBlendMode:    zone.blend,
-      opacity:         opacity,
-      borderRadius:    "50%",
-      filter:          zone.blur > 0 ? `blur(${zone.blur * 0.4}px)` : "none",
-      pointerEvents:   "none",
-    }}/>
+      position:      "absolute",
+      top:           `${zone.top}%`,
+      left:          `${zone.left}%`,
+      width:         `${zone.width}%`,
+      height:        `${zone.height}%`,
+      borderRadius:  "50%",
+      overflow:      "hidden",
+      pointerEvents: "none",
+    }}>
+      <div style={{
+        width:        "100%",
+        height:       "100%",
+        background:   `radial-gradient(ellipse at center, ${color} 0%, ${color}dd 55%, ${color}88 85%, ${color}00 100%)`,
+        mixBlendMode: zone.blend,
+        opacity:      opacity,
+      }}/>
+    </div>
   );
 }
 
@@ -135,7 +161,7 @@ export default function MakeupStudio() {
       {/* ── Face with CSS makeup overlay ─────────────────────────── */}
       <div className="flex flex-col items-center gap-3 shrink-0">
         <div className="relative rounded-2xl overflow-hidden"
-             style={{ width:320, boxShadow:"0 12px 48px rgba(0,0,0,0.28)" }}>
+             style={{ width:320, boxShadow:"0 12px 48px rgba(0,0,0,0.28)", isolation:"isolate" }}>
           {/* Base face image */}
           <img
             src="/faces/mannequin.png"
